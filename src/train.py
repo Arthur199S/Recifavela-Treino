@@ -6,7 +6,6 @@ from torchvision import datasets, transforms, models
 from torch.utils.data import DataLoader, random_split
 from tqdm import tqdm
 
-
 def get_auto_config():
     cfg = {}
 
@@ -58,10 +57,10 @@ def main():
 
     LR = 3e-4
 
-    CHECKPOINT_PATH = "models/checkpoint.pth"
-    BEST_MODEL_PATH = "models/best_model.pth"
+    CHECKPOINT_PATH = "../models/checkpoint.pth"
+    BEST_MODEL_PATH = "../models/best_model.pth"
 
-    os.makedirs("models", exist_ok=True)
+    os.makedirs("../models", exist_ok=True)
 
     # ================= TRANSFORMS =================
 
@@ -89,7 +88,7 @@ def main():
     # ================= DATA =================
 
     dataset = datasets.ImageFolder(
-        "data",
+        "../data",
         transform=train_transform
     )
 
