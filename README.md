@@ -41,11 +41,15 @@ Recifavela-Treino/
 ├── data/
 │   ├── PET/
 │   └── NOT_PET/
+├── models/
+│   ├── best_model.pth
+│   └── checkpoint.pth
 ├── src/
 │   ├── train.py
 │   ├── predict.py
 │   └── evaluate.py
-├── imag-test-certos/
+├── imag-test/
+├── .env
 └── README.md
 ```
 
