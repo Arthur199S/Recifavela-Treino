@@ -1,8 +1,8 @@
 import os
 import shutil
 
-origem = r"data/PET"
-destino = r"data/NOT_PET"
+origem = r"C:\Users\arthu\Downloads\archive\VN_trash_classification\Test\Alu"
+destino = r"../data/NOT_PET"
 
 os.makedirs(destino, exist_ok=True)
 
@@ -10,13 +10,15 @@ movidos = 0
 
 for arquivo in os.listdir(origem):
 
-    nome = arquivo.lower()
+    src = os.path.join(origem, arquivo)
 
-    if nome.endswith("_1.jpg") and not nome.endswith("_1_1.jpg"):
-        src = os.path.join(origem, arquivo)
-        dst = os.path.join(destino, arquivo)
+    if os.path.isfile(src):
+        nome, ext = os.path.splitext(arquivo)
+
+        novo_nome = f"{nome}_1{ext}"  # acrescenta +1 no final
+        dst = os.path.join(destino, novo_nome)
 
         shutil.move(src, dst)
         movidos += 1
 
-print(f"{movidos} imagens movidas para NOT_PET.")
+print(f"De {origem}:{movidos} imagens movidas para {destino}.")
