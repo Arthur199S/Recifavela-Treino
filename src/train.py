@@ -5,6 +5,13 @@ import torch.nn as nn
 from torchvision import datasets, transforms, models
 from torch.utils.data import DataLoader, random_split
 from tqdm import tqdm
+from sklearn.metrics import (
+    accuracy_score,
+    precision_score,
+    recall_score,
+    f1_score,
+    confusion_matrix
+)
 
 def get_auto_config():
     cfg = {}
@@ -65,6 +72,9 @@ def main():
     # ================= TRANSFORMS =================
 
     train_transform = transforms.Compose([
+        transforms.Lambda(
+            lambda img: img.convert("RGB")
+        ),
         transforms.Resize((224,224)),
         transforms.RandomHorizontalFlip(),
         transforms.RandomRotation(10),
@@ -77,6 +87,9 @@ def main():
     ])
 
     test_transform = transforms.Compose([
+        transforms.Lambda(
+            lambda img: img.convert("RGB")
+        ),
         transforms.Resize((224,224)),
         transforms.ToTensor(),
         transforms.Normalize(
@@ -152,7 +165,7 @@ def main():
     # ================= RESUME =================
 
     epoch=0
-    best_val_loss=float("inf")
+    best_f1-0
 
     if os.path.exists(CHECKPOINT_PATH):
         try:
@@ -175,9 +188,7 @@ def main():
                 )
 
                 epoch = ckpt["epoch"]
-                best_val_loss = ckpt[
-                    "best_val_loss"
-                ]
+                best_f1 = ckpt["best_f1"]
 
                 print(
                     f"Retomando epoch {epoch}"
@@ -257,56 +268,100 @@ def main():
             )
 
 
-        # -------- VALIDATION --------
+       # -------- VALIDATION --------
 
         model.eval()
 
-        correct=0
-        total=0
-        val_loss=0
+        val_loss = 0
+
+        all_preds = []
+        all_labels = []
 
         with torch.no_grad():
 
-            for x,y in test_loader:
+            for x, y in test_loader:
 
-                x=x.to(device)
-                y=y.to(device)
+                x = x.to(device)
+                y = y.to(device)
 
-                out=model(x)
+                out = model(x)
 
-                loss=criterion(out,y)
+                loss = criterion(out, y)
                 val_loss += loss.item()
 
-                preds=torch.argmax(
+                preds = torch.argmax(
                     out,
                     dim=1
                 )
 
-                correct += (
-                    preds==y
-                ).sum().item()
+                all_preds.extend(
+                    preds.cpu().numpy()
+                )
 
-                total += y.size(0)
+                all_labels.extend(
+                    y.cpu().numpy()
+                )
 
         avg_val_loss = (
             val_loss / len(test_loader)
         )
 
-        acc = 100*correct/total
+        # métricas
+        acc = accuracy_score(
+            all_labels,
+            all_preds
+        )
+
+        precision = precision_score(
+            all_labels,
+            all_preds,
+            pos_label=1
+        )
+
+        recall = recall_score(
+            all_labels,
+            all_preds,
+            pos_label=1
+        )
+
+        f1 = f1_score(
+            all_labels,
+            all_preds,
+            pos_label=1
+        )
+
+        cm = confusion_matrix(
+            all_labels,
+            all_preds
+        )
 
         print(
             f"Val Loss: {avg_val_loss:.6f}"
         )
 
         print(
-            f"Val Acc: {acc:.2f}%"
+            f"Val Acc: {acc*100:.2f}%"
         )
 
+        print(
+            f"Precision PET: {precision:.4f}"
+        )
+
+        print(
+            f"Recall PET: {recall:.4f}"
+        )
+
+        print(
+            f"F1 Score: {f1:.4f}"
+        )
+
+        print("Confusion Matrix:")
+        print(cm)
 
         # -------- SAVE BEST --------
 
-        if avg_val_loss < best_val_loss:
-            best_val_loss=avg_val_loss
+        if f1 > best_f1 and avg_val_loss < 0.05:
+            best_f1 = f1
 
             torch.save(
                 model.state_dict(),
@@ -314,9 +369,8 @@ def main():
             )
 
             print(
-                "Melhor modelo salvo"
+                "Melhor modelo salvo por F1"
             )
-
 
         # -------- CHECKPOINT --------
 
@@ -326,7 +380,7 @@ def main():
                 "optimizer_state":optimizer.state_dict(),
                 "scaler_state":scaler.state_dict(),
                 "epoch":epoch,
-                "best_val_loss":best_val_loss
+                "best_f1": best_f1
             },
             CHECKPOINT_PATH
         )
