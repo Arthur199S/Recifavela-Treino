@@ -96,3 +96,7 @@ F1-score PET: ~97%
 ## Projeto
 
 Projeto desenvolvido no contexto do **Recifavela**, Grupo 1.
+
+## Imagens do ultimo treinamento e do melhor modelo
+<img width="1920" height="1032" alt="Captura de tela 2026-04-26 040404" src="https://github.com/user-attachments/assets/0127eaad-50f8-41ff-9744-5296e31332e5" />
+<img width="1920" height="1032" alt="Captura de tela 2026-04-26 040327" src="https://github.com/user-attachments/assets/a7b3d936-7a3b-4c00-bb65-d9cdd4047626" />
